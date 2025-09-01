@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRT Practice</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9fafb; }
+    .center { display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .hidden { display: none; }
+    button { padding: 10px 20px; border-radius: 12px; border: none; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #e5e7eb; }
+    .srt-box { margin-bottom: 20px; padding: 15px; border-radius: 12px; background: #f3f4f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .timer { font-family: monospace; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div id="splash" class="center" style="background:black;color:white;">
+    <h1>Made by Ansh Khilnani</h1>
+  </div>
+
+  <div id="menu" class="center hidden">
+    <div>
+      <h2 style="text-align:center;margin-bottom:20px;">Select Number of SRTs</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <button onclick="startPractice(5)">5</button>
+        <button onclick="startPractice(10)">10</button>
+        <button onclick="startPractice(15)">15</button>
+        <button onclick="startPractice(30)">30</button>
+        <button onclick="startPractice(45)">45</button>
+        <button onclick="startPractice(60)">60</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice" class="hidden" style="padding:20px;">
+    <h2 id="practice-title"></h2>
+    <div class="timer" id="timer">⏱ 0:00</div>
+    <div id="srt-list"></div>
+    <div style="text-align:center;margin-top:20px;">
+      <button onclick="finishPractice()">Finish</button>
+    </div>
+  </div>
+
+  <div id="result" class="hidden" style="padding:20px;">
+    <h2>Practice Finished</h2>
+    <p id="final-time"></p>
+    <h3>Questions:</h3>
+    <div id="result-list"></div>
+  </div>
+
+  <script>
+    const srts = [
+      // Existing 60 prompts
+      "Walking home at night, he saw a man unconscious on the pavement. He ___",
+      "On a train, he noticed someone trying to pick a passenger’s pocket. He ___",
+      "In a football match, his team was trailing with little time left. He ___",
+      "A child fell into a pond while playing nearby. He ___",
+      "During study, electricity went off before an exam. He ___",
+      "Cycling to school, he witnessed a road accident. He ___",
+      "He was suddenly asked to give a short speech on stage. He ___",
+      "On the way to office, he noticed smoke from a shop. He ___",
+      "While trekking, his friend slipped and sprained an ankle. He ___",
+      "On exam day, his bicycle chain broke. He ___",
+      "During bus travel, the vehicle was overcrowded. He ___",
+      "An old man struggled to cross a busy road. He ___",
+      "In cricket practice, the ball broke a neighbour’s window. He ___",
+      "Before an interview, heavy rain began without warning. He ___",
+      "He was offered money to do something unethical. He ___",
+      "In the market, a wallet fell from someone’s pocket. He ___",
+      "On a picnic, the group ran short of food. He ___",
+      "He noticed a classmate cheating in a test. He ___",
+      "At night, he heard distress cries from a nearby house. He ___",
+      "A teammate was missing project deadlines repeatedly. He ___",
+      "A car splashed muddy water onto pedestrians. He ___",
+      "A sudden power cut hit a community event he organized. He ___",
+      "His bicycle brake failed on a downhill slope. He ___",
+      "He spotted a snake near the backyard door. He ___",
+      "A stranger urgently asked to use his phone. He ___",
+      "A close friend started a harmful habit. He ___",
+      "A classmate looked isolated and withdrawn for days. He ___",
+      "He noticed leakage from the hostel water tank. He ___",
+      "He reached the exam hall ten minutes late. He ___",
+      "A small fire started in the kitchen. He ___",
+      "He saw a motorbike skid on a wet road. He ___",
+      "He found a lost child at a fair. He ___",
+      "A neighbour’s house was found unlocked at night. He ___",
+      "His juniors lacked sports equipment. He ___",
+      "A teammate took credit for his work. He ___",
+      "A woman fainted on a bus. He ___",
+      "He noticed a live electric wire on the street. He ___",
+      "He saw a classmate being bullied. He ___",
+      "He missed the last bus home. He ___",
+      "His friend forgot admission documents. He ___",
+      "The neighbourhood park was littered. He ___",
+      "A rumor about a teacher spread online. He ___",
+      "He found counterfeit notes in change received. He ___",
+      "A shopkeeper overcharged an elderly customer. He ___",
+      "He witnessed a minor theft at the canteen. He ___",
+      "During flood relief, supplies were mismanaged. He ___",
+      "He saw a dog injured by traffic. He ___",
+      "His bike ran out of fuel in a remote area. He ___",
+      "A friend showed signs of exam anxiety. He ___",
+      "He observed unsafe construction at a site. He ___",
+      "He noticed smoke in the hostel corridor. He ___",
+      "During marathon practice, a runner collapsed. He ___",
+      "He found cracks in a bridge walkway. He ___",
+      "A neighbor played loud music late night. He ___",
+      "A shop’s cash drawer was left open. He ___",
+      "He saw someone dumping waste into a lake. He ___",
+      "His sibling failed an important test. He ___",
+      "He discovered a data error in submitted work. He ___",
+      "He encountered a stranded car at night. He ___",
+      "He realized his phone was stolen in a crowd. He ___",
+
+      // 120 NEW prompts
+      "During NCC camp, his tent collapsed at midnight. He ___",
+      "He saw a classmate crying before an exam. He ___",
+      "His bicycle tire got punctured on the way to tuition. He ___",
+      "He noticed two children fighting in the park. He ___",
+      "The teacher asked an unexpected question in class. He ___",
+      "His neighbour’s cow broke into the garden. He ___",
+      "The school team lost several matches in a row. He ___",
+      "He heard strange noises while walking alone at night. He ___",
+      "A villager asked for help to carry heavy load. He ___",
+      "A football hit and broke classroom glass. He ___",
+      "During a visit, he noticed poor sanitation in a colony. He ___",
+      "His younger sibling refused to study. He ___",
+      "A street dog chased him while jogging. He ___",
+      "He lost his lunchbox at school. He ___",
+      "An elder asked him to do a difficult task. He ___",
+      "He found a purse in the playground. He ___",
+      "The teacher gave him low marks unfairly. He ___",
+      "While swimming, his friend got tired in deep water. He ___",
+      "He saw a child selling balloons on the roadside. He ___",
+      "He had a disagreement with his best friend. He ___",
+      "He was asked to lead morning assembly suddenly. He ___",
+      "While painting, he spilled colour on the floor. He ___",
+      "He observed someone wasting food in the mess. He ___",
+      "On the way to school, he saw garbage on the street. He ___",
+      "His cricket team needed one run in last ball. He ___",
+      "He noticed a bicycle accident near school gate. He ___",
+      "His shoes tore just before a function. He ___",
+      "He was punished for a mistake not his own. He ___",
+      "During hike, rain started heavily. He ___",
+      "His classmate did not bring homework. He ___",
+      "He saw a man begging at traffic signal. He ___",
+      "He lost his way during a trip. He ___",
+      "He heard news of flood in nearby village. He ___",
+      "He was called for help by a neighbour at night. He ___",
+      "His cycle bell broke in traffic. He ___",
+      "He saw a farmer struggling in field. He ___",
+      "During match, umpire gave unfair decision. He ___",
+      "He was offered cigarette by a friend. He ___",
+      "He saw classmates teasing a junior. He ___",
+      "He observed broken bench in school. He ___",
+      "His bus broke down midway. He ___",
+      "He noticed an old man feeling unwell. He ___",
+      "He got fever on exam day. He ___",
+      "He dropped water on important documents. He ___",
+      "He saw someone damaging school property. He ___",
+      "He observed friend without lunch. He ___",
+      "He found injured bird in garden. He ___",
+      "He saw traffic jam near school. He ___",
+      "During PT, his friend got hurt. He ___",
+      "He observed electricity wastage in hostel. He ___",
+      "He noticed plastic waste in park. He ___",
+      "He saw someone fighting in bus. He ___",
+      "He forgot his notebook at home. He ___",
+      "He was late for school assembly. He ___",
+      "He saw injured man on road. He ___",
+      "His friend was absent for many days. He ___",
+      "He saw group of students quarreling. He ___",
+      "He noticed broken tap in washroom. He ___",
+      "He saw teacher carrying heavy books. He ___",
+      "He forgot to switch off fan in class. He ___",
+      "He observed juniors playing in restricted area. He ___",
+      "He found wallet with money. He ___",
+      "He noticed small child alone in market. He ___",
+      "He heard alarm of fire. He ___",
+      "He saw a person faint on street. He ___",
+      "He realized bus ticket missing. He ___",
+      "He found mobile phone on bench. He ___",
+      "He saw water leakage in class roof. He ___",
+      "He observed fight between shopkeepers. He ___",
+      "He was called to speak on environment. He ___",
+      "He saw a friend waste pocket money. He ___",
+      "He found exam paper difficult. He ___",
+      "He noticed plant without water. He ___",
+      "He forgot homework at hostel. He ___",
+      "He saw junior being scolded unfairly. He ___",
+      "He got low marks in test. He ___",
+      "He saw garbage near playground. He ___",
+      "He was lost in fair. He ___",
+      "He found someone’s pen. He ___",
+      "He saw torn national flag. He ___",
+      "He heard about blood donation camp. He ___",
+      "He noticed bus full but people still boarding. He ___",
+      "He was asked to sing on stage. He ___",
+      "He found himself in new city. He ___",
+      "He saw quarrel at water tap. He ___",
+      "He observed misuse of library books. He ___",
+      "He was asked to guide juniors. He ___",
+      "He saw lights left on in classroom. He ___",
+      "He noticed broken chair. He ___",
+      "He forgot important book. He ___",
+      "He saw man littering on road. He ___",
+      "He observed student sleeping in class. He ___",
+      "He was given wrong parcel. He ___",
+      "He saw friend unhappy. He ___",
+      "He noticed medicine expired. He ___",
+      "He forgot to bring pen in exam. He ___",
+      "He saw stranger suspiciously. He ___",
+      "He heard about tree cutting. He ___",
+      "He observed dustbin overflowing. He ___",
+      "He saw broken swing in park. He ___",
+      "He forgot ID card. He ___",
+      "He noticed juniors without proper uniform. He ___",
+      "He observed cracked wall. He ___",
+      "He was asked to lead drill. He ___",
+      "He noticed student hiding book. He ___",
+      "He saw unsafe wiring. He ___",
+      "He was asked meaning of word. He ___",
+      "He saw person dropping wallet. He ___",
+      "He forgot lunch box. He ___",
+      "He saw injured kitten. He ___",
+      "He was asked to help teacher. He ___",
+      "He saw untidy classroom. He ___",
+      "He found key on floor. He ___",
+      "He saw person fall from bike. He ___",
+      "He noticed broken light. He ___",
+      "He saw junior lost. He ___",
+      "He forgot important date. He ___",
+      "He noticed wrong information on notice board. He ___",
+      "He saw quarrel during sports. He ___",
+      "He observed misuse of water. He ___",
+      "He was asked to help in kitchen. He ___",
+      "He saw friend absent-minded. He ___",
+      "He noticed broken fence. He ___",
+    ];
+
+    let time = 0;
+    let timerInterval;
+    let currentCount = 0;
+
+    function startPractice(count) {
+      currentCount = count;
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('practice').classList.remove('hidden');
+      document.getElementById('practice-title').innerText = `SRT Practice (${count} SRTs)`;
+
+      const list = document.getElementById('srt-list');
+      list.innerHTML = '';
+      const shuffled = [...srts].sort(() => Math.random() - 0.5).slice(0, count);
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement('div');
+        div.className = 'srt-box';
+        div.innerHTML = `<p>${shuffled[i]}</p><p style="color:gray;font-style:italic;">(Write your response by hand on paper)</p>`;
+        list.appendChild(div);
+      }
+      window.__lastSessionPrompts = shuffled;
+
+      time = 0;
+      updateTimer();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        time++;
+        updateTimer();
+      }, 1000);
+    }
+
+    function updateTimer() {
+      const minutes = Math.floor(time / 60);
+      const seconds = String(time % 60).padStart(2, '0');
+      document.getElementById('timer').innerText = `⏱ ${minutes}:${seconds}`;
+    }
+
+    function finishPractice() {
+      clearInterval(timerInterval);
+      document.getElementById('practice').classList.add('hidden');
+      document.getElementById('result').classList.remove('hidden');
+      const minutes = Math.floor(time / 60);
+      const seconds = String(time % 60).padStart(2, '0');
+      document.getElementById('final-time').innerText = `Your Time: ⏱ ${minutes}:${seconds}`;
+
+      const resultList = document.getElementById('result-list');
+      resultList.innerHTML = '';
+      const used = window.__lastSessionPrompts || [];
+      for (let i = 0; i < currentCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'srt-box';
+        div.innerHTML = `<p>${used[i]}</p>`;
+        resultList.appendChild(div);
+      }
+    }
+
+    setTimeout(() => {
+      document.getElementById('splash').classList.add('hidden');
+      document.getElementById('menu').classList.remove('hidden');
+    }, 2000);
+  </script>
+</body>
+</html>
