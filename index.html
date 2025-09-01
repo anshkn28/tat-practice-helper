@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRT Practice</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9fafb; }
+    .center { display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .hidden { display: none; }
+    button { padding: 10px 20px; border-radius: 12px; border: none; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #e5e7eb; }
+    .srt-box { margin-bottom: 20px; padding: 15px; border-radius: 12px; background: #f3f4f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .timer { font-family: monospace; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div id="splash" class="center" style="background:black;color:white;">
+    <h1>Made by Ansh Khilnani</h1>
+  </div>
+
+  <div id="menu" class="center hidden">
+    <div>
+      <h2 style="text-align:center;margin-bottom:20px;">Select Number of SRTs</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <button onclick="startPractice(5)">5</button>
+        <button onclick="startPractice(10)">10</button>
+        <button onclick="startPractice(15)">15</button>
+        <button onclick="startPractice(30)">30</button>
+        <button onclick="startPractice(45)">45</button>
+        <button onclick="startPractice(60)">60</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="practice" class="hidden" style="padding:20px;">
+    <h2 id="practice-title"></h2>
+    <div class="timer" id="timer">⏱ 0:00</div>
+    <div id="srt-list"></div>
+  </div>
+
+  <script>
+    const srts = [
+      "He was walking alone at midnight and saw a man lying unconscious. He ___",
+      "While travelling in a train, he saw someone trying to steal a bag. He ___",
+      "During a football match, his team was losing badly. He ___",
+      "He saw a child fall into a pond while playing. He ___",
+      "He was preparing for exams but electricity went off. He ___",
+      "While cycling to school, he saw an accident. He ___",
+      "He was asked to speak suddenly on stage. He ___",
+      "While going to office, he noticed a fire in a shop. He ___",
+      "During trekking, one of his friends slipped and got injured. He ___",
+      "On the way to exam, his bicycle chain broke. He ___",
+      "While travelling, he found the bus overcrowded. He ___",
+      "He saw an old man unable to cross the busy road. He ___",
+      "During cricket practice, the ball broke a window. He ___",
+      "He was going to interview and rain started heavily. He ___",
+      "He was offered money to do something wrong. He ___",
+    ];
+
+    let time = 0;
+    let timerInterval;
+
+    function startPractice(count) {
+      document.getElementById('menu').classList.add('hidden');
+      document.getElementById('practice').classList.remove('hidden');
+      document.getElementById('practice-title').innerText = `SRT Practice (${count} SRTs)`;
+
+      const list = document.getElementById('srt-list');
+      list.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement('div');
+        div.className = 'srt-box';
+        div.innerHTML = `<p>${srts[i % srts.length]}</p><p style="color:gray;font-style:italic;">(Write your response by hand on paper)</p>`;
+        list.appendChild(div);
+      }
+
+      time = 0;
+      updateTimer();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        time++;
+        updateTimer();
+      }, 1000);
+    }
+
+    function updateTimer() {
+      const minutes = Math.floor(time / 60);
+      const seconds = String(time % 60).padStart(2, '0');
+      document.getElementById('timer').innerText = `⏱ ${minutes}:${seconds}`;
+    }
+
+    setTimeout(() => {
+      document.getElementById('splash').classList.add('hidden');
+      document.getElementById('menu').classList.remove('hidden');
+    }, 2000);
+  </script>
+</body>
+</html>
